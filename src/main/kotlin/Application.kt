@@ -8,7 +8,7 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
-    // configureDatabase() // Disabled for simplicity
+    configureDatabase() // PostgreSQL database enabled!
     configureSecurity()
     configureHTTP()
     configureSerialization()

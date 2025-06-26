@@ -34,8 +34,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-dao:0.54.0")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.54.0")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:0.54.0")
-    implementation("com.h2database:h2:2.2.224") // H2 for easy setup
-    // implementation("org.postgresql:postgresql:42.7.3") // PostgreSQL (when Docker is ready)
+    implementation("org.postgresql:postgresql:42.7.7") // PostgreSQL - production database!
     implementation("com.zaxxer:HikariCP:5.1.0")
     
     testImplementation(libs.ktor.server.test.host)

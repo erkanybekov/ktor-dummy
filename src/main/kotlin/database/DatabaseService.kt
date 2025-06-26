@@ -21,6 +21,7 @@ object DatabaseService {
         autoCreateTables: Boolean = true
     ) {
         val config = HikariConfig().apply {
+            // Use standard JDBC URL approach (works reliably with PostgreSQL 42.7.7)
             jdbcUrl = url
             driverClassName = driver
             username = user
@@ -39,6 +40,12 @@ object DatabaseService {
             
             // Pool name for monitoring
             poolName = "KtorTodoPool"
+            
+            // PostgreSQL-specific optimizations
+            if (driver.contains("postgresql")) {
+                addDataSourceProperty("stringtype", "unspecified")
+                addDataSourceProperty("prepareThreshold", "1")
+            }
         }
         
         val dataSource = HikariDataSource(config)

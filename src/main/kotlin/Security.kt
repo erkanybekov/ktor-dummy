@@ -20,8 +20,8 @@ fun Application.configureSecurity() {
         // Allow requests from our frontend
         allowOrigin("http://localhost:8080")
         allowOrigin("http://localhost:3000") // React dev server
-        
-        // tests Origin matches Host header  
+    
+        // tests Origin matches Host header
         originMatchesHost()
     }
     

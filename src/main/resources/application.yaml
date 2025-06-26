@@ -2,27 +2,23 @@ ktor:
     application:
         modules:
             - kg.erkan.ApplicationKt.module
+    development: ${DEVELOPMENT:false}
     deployment:
-        port: 8080
+        port: ${PORT:8080}
+        host: ${HOST:0.0.0.0}
 
 jwt:
     secret: ${JWT_SECRET:"your-super-secret-jwt-key-change-in-production"}
-    issuer: "ktor-todo-api"
-    audience: "ktor-todo-users"
-    realm: "Todo API"
-    expirationHours: 24
+    issuer: ${JWT_ISSUER:"ktor-todo-api"}
+    audience: ${JWT_AUDIENCE:"ktor-todo-users"}
+    realm: ${JWT_REALM:"Todo API"}
+    expirationTime: ${JWT_EXPIRATION:86400} # 24 hours in seconds
 
 database:
-    # H2 Database (in-memory, no setup required)
-    url: ${DATABASE_URL:"jdbc:h2:mem:ktor_todo"}
-    driver: "org.h2.Driver"
-    user: ${DATABASE_USER:"sa"}
-    password: ${DATABASE_PASSWORD:""}
+    # PostgreSQL Database - Production Ready!
+    url: "jdbc:postgresql://localhost:5432/ktor_todo"
+    driver: "org.postgresql.Driver"
+    user: "postgres"
+    password: "password"
     maxPoolSize: 10
-    autoCreateTables: ${AUTO_CREATE_TABLES:true}
-    
-    # PostgreSQL (uncomment when Docker is available)
-    # url: ${DATABASE_URL:"jdbc:postgresql://localhost:5432/ktor_todo"}
-    # driver: "org.postgresql.Driver" 
-    # user: ${DATABASE_USER:"postgres"}
-    # password: ${DATABASE_PASSWORD:"password"}
+    autoCreateTables: true

@@ -1,53 +1,94 @@
 package kg.erkan.repository
 
+import kg.erkan.database.Users
 import kg.erkan.models.UserEntity
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * PostgreSQL-backed User Repository
+ * Production-ready with proper database operations
+ */
 object UserRepository {
-    private val users = ConcurrentHashMap<String, UserEntity>()
-    private val emailIndex = ConcurrentHashMap<String, String>() // email -> userId
     
     fun create(user: UserEntity): UserEntity {
         val userId = UUID.randomUUID().toString()
-        val userWithId = user.copy(id = userId, createdAt = System.currentTimeMillis())
+        val now = System.currentTimeMillis()
         
-        users[userId] = userWithId
-        emailIndex[user.email.lowercase()] = userId
-        
-        return userWithId
+        return transaction {
+            Users.insert {
+                it[id] = userId
+                it[email] = user.email.lowercase()
+                it[name] = user.name
+                it[passwordHash] = user.passwordHash
+                it[isEmailVerified] = user.isEmailVerified
+                it[createdAt] = now
+                it[updatedAt] = now
+            }
+            
+            user.copy(id = userId, createdAt = now)
+        }
     }
     
-    fun findById(id: String): UserEntity? = users[id]
+    fun findById(id: String): UserEntity? {
+        return transaction {
+            Users.selectAll().where { Users.id eq id }
+                .singleOrNull()
+                ?.toUserEntity()
+        }
+    }
     
     fun findByEmail(email: String): UserEntity? {
-        val userId = emailIndex[email.lowercase()]
-        return userId?.let { users[it] }
+        return transaction {
+            Users.selectAll().where { Users.email eq email.lowercase() }
+                .singleOrNull()
+                ?.toUserEntity()
+        }
     }
     
-    fun existsByEmail(email: String): Boolean = emailIndex.containsKey(email.lowercase())
+    fun existsByEmail(email: String): Boolean {
+        return transaction {
+            Users.selectAll().where { Users.email eq email.lowercase() }
+                .count() > 0
+        }
+    }
     
     fun update(user: UserEntity): UserEntity? {
-        return if (users.containsKey(user.id)) {
-            users[user.id] = user
-            // Update email index if email changed
-            emailIndex[user.email.lowercase()] = user.id
-            user
-        } else {
-            null
+        return transaction {
+            val updated = Users.update({ Users.id eq user.id }) {
+                it[email] = user.email.lowercase()
+                it[name] = user.name
+                it[passwordHash] = user.passwordHash
+                it[isEmailVerified] = user.isEmailVerified
+                it[updatedAt] = System.currentTimeMillis()
+            }
+            
+            if (updated > 0) findById(user.id) else null
         }
     }
     
     fun delete(id: String): Boolean {
-        val user = users[id]
-        return if (user != null) {
-            users.remove(id)
-            emailIndex.remove(user.email.lowercase())
-            true
-        } else {
-            false
+        return transaction {
+            Users.deleteWhere { Users.id eq id } > 0
         }
     }
     
-    fun count(): Long = users.size.toLong()
+    fun count(): Long {
+        return transaction {
+            Users.selectAll().count()
+        }
+    }
+    
+    private fun ResultRow.toUserEntity(): UserEntity {
+        return UserEntity(
+            id = this[Users.id],
+            email = this[Users.email],
+            name = this[Users.name],
+            passwordHash = this[Users.passwordHash],
+            isEmailVerified = this[Users.isEmailVerified],
+            createdAt = this[Users.createdAt]
+        )
+    }
 } 
