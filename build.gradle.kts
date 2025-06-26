@@ -12,6 +12,9 @@ application {
     mainClass = "io.ktor.server.netty.EngineMain"
 }
 
+// Note: buildFatJar task is automatically provided by Ktor plugin
+// JAR file will be created at: build/libs/ktor-dummy-all.jar
+
 repositories {
     mavenCentral()
 }
