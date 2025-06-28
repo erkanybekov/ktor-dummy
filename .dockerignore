@@ -2,11 +2,11 @@
 build/
 !build/libs/ktor-dummy-all.jar
 
-# Development files
+# Development files - COMMENTING OUT gradle files needed for build
 .gradle/
-gradle/
-gradlew
-gradlew.bat
+# gradle/
+# gradlew
+# gradlew.bat
 *.md
 .git/
 .gitignore

@@ -1,4 +1,15 @@
-FROM openjdk:17-jre-slim
+# Build stage
+FROM gradle:8-jdk17 AS build
+WORKDIR /app
+COPY gradle/ gradle/
+COPY gradlew gradlew.bat gradle.properties settings.gradle.kts build.gradle.kts ./
+COPY src/ src/
+
+# Build the application
+RUN ./gradlew build --no-daemon
+
+# Runtime stage - using eclipse-temurin instead of openjdk
+FROM eclipse-temurin:17-jre
 
 # Install curl for health checks
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
@@ -9,8 +20,8 @@ RUN groupadd -r ktor && useradd -r -g ktor ktor
 # Create app directory
 WORKDIR /app
 
-# Copy JAR file
-COPY build/libs/ktor-dummy-all.jar app.jar
+# Copy the built JAR
+COPY --from=build /app/build/libs/*-all.jar app.jar
 
 # Change ownership to non-root user
 RUN chown -R ktor:ktor /app
@@ -20,7 +31,7 @@ USER ktor
 EXPOSE 8080
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD curl -f http://localhost:8080/health || exit 1
 
 # Environment variables with defaults
