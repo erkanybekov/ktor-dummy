@@ -19,16 +19,52 @@ fun Application.configureDatabase() {
     val config = environment.config
     
     val rawUrl = config.property("database.url").getString()
-    // Convert Render's postgresql:// URL to jdbc:postgresql:// format
-    val url = if (rawUrl.startsWith("postgresql://")) {
-        "jdbc:$rawUrl"
+    
+    // Convert Render's postgresql:// URL to proper JDBC format with port
+    val url = when {
+        rawUrl.startsWith("postgresql://") -> {
+            // Render format: postgresql://user:pass@host/database
+            // Need to convert to: jdbc:postgresql://host:5432/database
+            val withoutProtocol = rawUrl.removePrefix("postgresql://")
+            val parts = withoutProtocol.split("@")
+            if (parts.size == 2) {
+                val hostAndDb = parts[1]
+                // Add default PostgreSQL port if not present
+                if (!hostAndDb.contains(":")) {
+                    val hostParts = hostAndDb.split("/")
+                    if (hostParts.size == 2) {
+                        "jdbc:postgresql://${hostParts[0]}:5432/${hostParts[1]}"
+                    } else {
+                        "jdbc:postgresql://$hostAndDb"
+                    }
+                } else {
+                    "jdbc:postgresql://$hostAndDb"
+                }
+            } else {
+                // Fallback to just adding jdbc: prefix
+                "jdbc:$rawUrl"
+            }
+        }
+        rawUrl.startsWith("jdbc:") -> rawUrl
+        else -> "jdbc:postgresql://$rawUrl"
+    }
+    
+    // For Render, extract credentials from DATABASE_URL if needed
+    val dbUser = if (rawUrl.startsWith("postgresql://")) {
+        val match = Regex("postgresql://([^:]+):([^@]+)@").find(rawUrl)
+        match?.groupValues?.get(1) ?: config.property("database.user").getString()
     } else {
-        rawUrl
+        config.property("database.user").getString()
+    }
+    
+    val dbPassword = if (rawUrl.startsWith("postgresql://")) {
+        val match = Regex("postgresql://[^:]+:([^@]+)@").find(rawUrl)
+        match?.groupValues?.get(1) ?: config.property("database.password").getString()
+    } else {
+        config.property("database.password").getString()
     }
     
     val driver = config.property("database.driver").getString()
-    val user = config.property("database.user").getString()
-    val password = config.property("database.password").getString()
     val maxPoolSize = config.propertyOrNull("database.maxPoolSize")?.getString()?.toInt() ?: 10
     val autoCreateTables = config.propertyOrNull("database.autoCreateTables")?.getString()?.toBoolean() ?: true
     
@@ -36,8 +72,8 @@ fun Application.configureDatabase() {
         DatabaseService.init(
             url = url,
             driver = driver,
-            user = user,
-            password = password,
+            user = dbUser,
+            password = dbPassword,
             maxPoolSize = maxPoolSize,
             autoCreateTables = autoCreateTables
         )
