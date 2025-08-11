@@ -27,15 +27,11 @@ COPY --from=build /app/build/libs/*-all.jar app.jar
 RUN chown -R ktor:ktor /app
 USER ktor
 
-# Expose port
-EXPOSE 8080
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:8080/health || exit 1
+# Expose port (Render will set PORT env var)
+EXPOSE $PORT
 
 # Environment variables with defaults
-ENV DATABASE_URL="jdbc:postgresql://postgres:5432/ktor_todo"
+ENV DATABASE_URL="jdbc:postgresql://localhost:5432/ktor_todo"
 ENV DATABASE_USER="postgres"
 ENV DATABASE_PASSWORD="password"
 ENV JWT_SECRET="change-me-in-production"
@@ -46,4 +42,4 @@ ENV HOST="0.0.0.0"
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC"
 
 # Start application
-CMD java $JAVA_OPTS -jar app.jar 
+CMD java $JAVA_OPTS -Dktor.deployment.port=$PORT -jar app.jar 
