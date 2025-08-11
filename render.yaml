@@ -3,7 +3,7 @@ services:
     name: ktor-todo-app
     env: docker
     dockerfilePath: ./Dockerfile
-    plan: starter
+    plan: free
     region: oregon
     branch: main
     envVars:
@@ -31,5 +31,5 @@ services:
 databases:
   - name: ktor-todo-db
     databaseName: ktor_todo
-    plan: starter
+    plan: free
     region: oregon
