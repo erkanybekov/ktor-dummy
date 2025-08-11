@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: ktor-todo-app
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    branch: main
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 8080
+      - key: HOST
+        value: 0.0.0.0
+      - key: DEVELOPMENT
+        value: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ktor-todo-db
+          property: connectionString
+      - key: DATABASE_USER
+        fromDatabase:
+          name: ktor-todo-db
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: ktor-todo-db
+          property: password
+
+databases:
+  - name: ktor-todo-db
+    databaseName: ktor_todo
+    plan: free
+    region: oregon

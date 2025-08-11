@@ -18,7 +18,14 @@ fun Application.module() {
 fun Application.configureDatabase() {
     val config = environment.config
     
-    val url = config.property("database.url").getString()
+    val rawUrl = config.property("database.url").getString()
+    // Convert Render's postgresql:// URL to jdbc:postgresql:// format
+    val url = if (rawUrl.startsWith("postgresql://")) {
+        "jdbc:$rawUrl"
+    } else {
+        rawUrl
+    }
+    
     val driver = config.property("database.driver").getString()
     val user = config.property("database.user").getString()
     val password = config.property("database.password").getString()
