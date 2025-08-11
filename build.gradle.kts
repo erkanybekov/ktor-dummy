@@ -33,11 +33,11 @@ dependencies {
     implementation(libs.ktor.server.config.yaml)
     
     // Database dependencies
-    implementation("org.jetbrains.exposed:exposed-core:0.54.0")
-    implementation("org.jetbrains.exposed:exposed-dao:0.54.0")
-    implementation("org.jetbrains.exposed:exposed-jdbc:0.54.0")
-    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:0.54.0")
-    implementation("org.postgresql:postgresql:42.7.7") // PostgreSQL - production database!
+    implementation("org.jetbrains.exposed:exposed-core:0.56.0")
+    implementation("org.jetbrains.exposed:exposed-dao:0.56.0")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.56.0")
+    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:0.56.0")
+    implementation("org.postgresql:postgresql:42.7.4") // PostgreSQL - stable version
     implementation("com.zaxxer:HikariCP:5.1.0")
     
     testImplementation(libs.ktor.server.test.host)

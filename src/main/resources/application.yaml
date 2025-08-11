@@ -15,10 +15,10 @@ jwt:
     expirationTime: ${JWT_EXPIRATION:86400} # 24 hours in seconds
 
 database:
-    # PostgreSQL Database - Use environment variable or default for Docker
-    url: ${DATABASE_URL:"jdbc:postgresql://postgres:5432/ktor_todo"}
+    # PostgreSQL Database - Use environment variable or default for localhost
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/ktor_todo}
     driver: "org.postgresql.Driver"
-    user: ${DATABASE_USER:"postgres"}
-    password: ${DATABASE_PASSWORD:"password"}
+    user: ${DATABASE_USER:postgres}
+    password: ${DATABASE_PASSWORD:password}
     maxPoolSize: 10
     autoCreateTables: true
