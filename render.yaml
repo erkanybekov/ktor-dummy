@@ -31,6 +31,5 @@ services:
 databases:
   - name: ktor-todo-db
     databaseName: ktor_todo
-    user: postgres
     plan: starter
     region: oregon
