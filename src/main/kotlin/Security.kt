@@ -15,15 +15,12 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Application.configureSecurity() {
-    // CSRF protection - simplified for development
-    install(CSRF) {
-        // Allow requests from our frontend
-        allowOrigin("http://localhost:8080")
-        allowOrigin("http://localhost:3000") // React dev server
-    
-        // tests Origin matches Host header
-        originMatchesHost()
-    }
+    // CSRF protection disabled for API deployment
+    // Note: For production with web frontend, re-enable with proper origins
+    // install(CSRF) {
+    //     allowOrigin("https://your-frontend-domain.com")
+    //     originMatchesHost()
+    // }
     
     // JWT Authentication Configuration
     val jwtAudience = "ktor-dummy-users"
